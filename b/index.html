@@ -13,12 +13,10 @@
     <link rel="stylesheet" href="./css/main.css" />
   </noscript>
   <style>
-    wistia-player[media-id='f69myfyjoh']:not(:defined) {
-      background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/f69myfyjoh/swatch');
-      display: block;
-      filter: blur(5px);
-      padding-top: 177.78%;
-    }
+    .wistia-facade {position: relative; width: 100%; height: 100%; cursor: pointer; background: #000; border-radius: inherit; overflow: hidden;}
+    .wistia-facade img {width: 100%; height: 100%; object-fit: cover; display: block;}
+    .wistia-facade .play-btn {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; background: rgba(0,0,0,0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none;}
+    .wistia-facade .play-btn::after {content: ''; border-style: solid; border-width: 12px 0 12px 20px; border-color: transparent transparent transparent #fff; margin-left: 4px;}
   </style>
 </head>
 
@@ -50,7 +48,11 @@
           Sharh Properties va <br> Danube Kompaniyalarining <span><br> 2 kunlik Toshkentdagi <br> Mega Takliflar</span> Kuni
         </h2>
         <div class="hero__col">
-          <wistia-player media-id="f69myfyjoh" seo="false" aspect="0.5625"></wistia-player>
+          <div class="wistia-facade" id="wistiaFacade" data-media-id="f69myfyjoh">
+            <img src="https://fast.wistia.com/embed/medias/f69myfyjoh/swatch?image_crop_resized=400x225"
+                 width="294" height="161" loading="lazy" decoding="async" alt="Video preview">
+            <div class="play-btn" aria-label="Play video"></div>
+          </div>
         </div>
         <p class="col__text">*Videoda Mehmonlar bilan <br> tanishishingiz mumkin</p>
         <div class="btn-wrap">
@@ -113,8 +115,36 @@
     </div>
   </div>
 
-  <script defer src="https://fast.wistia.com/player.js" async></script>
-  <script defer src="https://fast.wistia.com/embed/f69myfyjoh.js" async type="module"></script>
+  <script>
+    (function () {
+      var facade = document.getElementById('wistiaFacade');
+      if (!facade) return;
+      var loaded = false;
+      function loadWistia() {
+        if (loaded) return;
+        loaded = true;
+        var s1 = document.createElement('script');
+        s1.src = 'https://fast.wistia.com/player.js';
+        s1.async = true;
+        document.head.appendChild(s1);
+        var s2 = document.createElement('script');
+        s2.src = 'https://fast.wistia.com/embed/f69myfyjoh.js';
+        s2.async = true;
+        s2.type = 'module';
+        document.head.appendChild(s2);
+        var player = document.createElement('wistia-player');
+        player.setAttribute('media-id', 'f69myfyjoh');
+        player.setAttribute('seo', 'false');
+        player.setAttribute('aspect', '0.5625');
+        player.style.width = '100%';
+        player.style.height = '100%';
+        player.style.display = 'block';
+        facade.replaceWith(player);
+      }
+      facade.addEventListener('click', loadWistia, { once: true });
+      facade.addEventListener('mouseenter', loadWistia, { once: true });
+    })();
+  </script>
 
   <script defer src="../js/phoneFormatter.js"></script>
   <script defer src="../js/app.js"></script>
