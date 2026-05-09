@@ -13,10 +13,13 @@
     <link rel="stylesheet" href="./css/main.css" />
   </noscript>
   <style>
-    .wistia-facade {position: relative; width: 100%; height: 100%; cursor: pointer; background: #000; border-radius: inherit; overflow: hidden;}
+    .hero__col {position: relative;}
+    .wistia-facade {position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; background: #000; border-radius: inherit; overflow: hidden; transition: opacity 0.3s ease; z-index: 2;}
+    .wistia-facade.is-hidden {opacity: 0; pointer-events: none;}
     .wistia-facade img {width: 100%; height: 100%; object-fit: cover; display: block;}
     .wistia-facade .play-btn {position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; background: rgba(0,0,0,0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: none;}
     .wistia-facade .play-btn::after {content: ''; border-style: solid; border-width: 12px 0 12px 20px; border-color: transparent transparent transparent #fff; margin-left: 4px;}
+    .hero__col wistia-player {position: absolute; inset: 0; width: 100%; height: 100%; display: block; border-radius: inherit; z-index: 1;}
   </style>
 </head>
 
@@ -50,7 +53,7 @@
         <div class="hero__col">
           <div class="wistia-facade" id="wistiaFacade" data-media-id="f69myfyjoh">
             <img src="https://fast.wistia.com/embed/medias/f69myfyjoh/swatch?image_crop_resized=400x225"
-                 width="294" height="161" loading="lazy" decoding="async" alt="Video preview">
+                 width="294" height="161" decoding="async" fetchpriority="high" alt="Video preview">
             <div class="play-btn" aria-label="Play video"></div>
           </div>
         </div>
@@ -123,6 +126,21 @@
       function loadWistia() {
         if (loaded) return;
         loaded = true;
+        var parent = facade.parentNode;
+        var player = document.createElement('wistia-player');
+        player.setAttribute('media-id', 'f69myfyjoh');
+        player.setAttribute('seo', 'false');
+        player.setAttribute('aspect', '0.5625');
+        player.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:inherit;';
+        parent.style.position = 'relative';
+        parent.appendChild(player);
+        var checkReady = setInterval(function () {
+          if (player.shadowRoot || customElements.get('wistia-player')) {
+            clearInterval(checkReady);
+            facade.style.display = 'none';
+          }
+        }, 100);
+        setTimeout(function () { clearInterval(checkReady); facade.style.display = 'none'; }, 3000);
         var s1 = document.createElement('script');
         s1.src = 'https://fast.wistia.com/player.js';
         s1.async = true;
@@ -132,14 +150,6 @@
         s2.async = true;
         s2.type = 'module';
         document.head.appendChild(s2);
-        var player = document.createElement('wistia-player');
-        player.setAttribute('media-id', 'f69myfyjoh');
-        player.setAttribute('seo', 'false');
-        player.setAttribute('aspect', '0.5625');
-        player.style.width = '100%';
-        player.style.height = '100%';
-        player.style.display = 'block';
-        facade.replaceWith(player);
       }
       facade.addEventListener('click', loadWistia, { once: true });
       facade.addEventListener('mouseenter', loadWistia, { once: true });
