@@ -131,16 +131,16 @@
         player.setAttribute('media-id', 'f69myfyjoh');
         player.setAttribute('seo', 'false');
         player.setAttribute('aspect', '0.5625');
-        player.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:inherit;';
-        parent.style.position = 'relative';
-        parent.appendChild(player);
-        var checkReady = setInterval(function () {
-          if (player.shadowRoot || customElements.get('wistia-player')) {
-            clearInterval(checkReady);
-            facade.style.display = 'none';
+        parent.insertBefore(player, facade);
+        window._wq = window._wq || [];
+        window._wq.push({
+          id: 'f69myfyjoh',
+          onReady: function (video) {
+            facade.classList.add('is-hidden');
+            video.play();
+            setTimeout(function () { facade.remove(); }, 400);
           }
-        }, 100);
-        setTimeout(function () { clearInterval(checkReady); facade.style.display = 'none'; }, 3000);
+        });
         var s1 = document.createElement('script');
         s1.src = 'https://fast.wistia.com/player.js';
         s1.async = true;
@@ -152,7 +152,7 @@
         document.head.appendChild(s2);
       }
       facade.addEventListener('click', loadWistia, { once: true });
-      facade.addEventListener('mouseenter', loadWistia, { once: true });
+      facade.addEventListener('touchstart', loadWistia, { once: true, passive: true });
     })();
   </script>
 
